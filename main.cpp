@@ -1,14 +1,16 @@
 #include <iostream>
-#include <algorithm>
 
 using namespace std;
+
+int num_ships = 4;
+int ship_sec = 19;
 
 void line(const int length)
 {
     cout << "   ";
-    for (int i = 0; i < length; i++) 
+    for (int i = 0; i < length; i++)
     {
-    cout << "*";
+        cout << "*";
     }
     cout << endl;
 }
@@ -24,6 +26,7 @@ int contains(int **coords, int row, int col, int arr_length)
     }
     return false;
 }
+
 void grid(int length, int width, int num_rows, int **coords)
 {
     int space_between = length / num_rows;
@@ -35,7 +38,7 @@ void grid(int length, int width, int num_rows, int **coords)
 
     int space_count = 0;
 
-    cout << "     A"; // Formatting 
+    cout << "     A"; // Formatting
 
     for (int i = 0; i < num_rows - 1; i++)
     {
@@ -52,7 +55,7 @@ void grid(int length, int width, int num_rows, int **coords)
         if (num >= 10)
         {
             cout << num << " ";
-        } 
+        }
         else
         {
             cout << num << "  ";
@@ -66,12 +69,10 @@ void grid(int length, int width, int num_rows, int **coords)
                 col += 1;
                 space_count = 0;
             }
-            else if (space_count == 1 && contains(
-                    coords, row, col, 4))
+            else if (space_count == 1 && contains(coords, row, col, num_ships))
             {
                 cout << "*";
                 space_count += 1;
-
             }
             else
             {
@@ -110,37 +111,63 @@ bool valid_ship_chosen(const int input, bool ship_available[])
     return !*(ship_available + input - 1);
 }
 
-void place_ships(bool player_ships[], int *coords)
+int calc_len_ship(int ship)
 {
-    int input = -1;
-
+    switch (ship)
+    {
+    case 1:
+        return 5;
+        break;
+    case 2:
+        return 4;
+        break;
+    case 3:
+        return 3;
+        break;
+    case 4:
+        return 2;
+        break;
+    default:
+        return -1;
+    }
+}
+void place_ships(bool player_ships[], int **coords, int index)
+{
+    int curr_ship = -1; // Default value, if stays, error
+    // This donest work : int coords[] = all_coords;
     print_ships_options();
     cout << "Enter: " << endl;
-    cin >> input;
- 
-    while (!valid_ship_num(input) || !valid_ship_chosen(
-        input, &player_ships[0]))
+    cin >> curr_ship;
+
+    // Validate Inputs
+    while (!valid_ship_num(curr_ship) ||
+           !valid_ship_chosen(curr_ship, &player_ships[0]))
     {
         cout << "Error, try again" << endl;
         cout << "Enter: ";
-        cin >> input;
+        cin >> curr_ship;
     }
-    *(player_ships + (input - 1)) = false;
-    
-    cout << "Enter x Coord: ";
-    cin >> coords[0];
+    *(player_ships + (curr_ship - 1)) = false;
+
+    coords[index][3] = calc_len_ship(curr_ship);
+
+    cout << "Enter X Coord: ";
+    cin >> coords[index][0];
 
     cout << endl;
-    cout << "Enter y Coord: ";
-    cin >> coords[1];
+    cout << "Enter Y Coord: ";
+    cin >> coords[index][1];
+
+    cout << endl;
+    cout << "Enter Direction(0 for H/1 for V): ";
+    cin >> coords[index][2];
 }
 
-void fill_arr(int **arr, int value, int arr_length)
+void fill_arr(int **arr, int value, int length1, int length2)
 {
-    for (int i = 0; i < arr_length; i++)
+    for (int i = 0; i < length1; i++)
     {
-        arr[i] = new int[4];
-        for (int j = 0; j < arr_length; j++)
+        for (int j = 0; j < length2; j++)
         {
             arr[i][j] = value;
         }
@@ -153,28 +180,25 @@ int main()
     const int length = 49;
     const int width = length / 4;
     const int num_rows = 12;
-
     // Game loop
-    bool player_1_ships[4] = {false, false, false, false};
-    int num_ships = 4;
+    bool player_1_ships[] = {false, false, false, false};
+    // Game states
+    //
 
-    //bool placing = true;
+    int **coords;
+    coords = new int *[4];
+    for (int i = 0; i < 4; i++)
+    {
+        coords[i] = new int[4];
+    }
 
-    //bool running = true;
-    //bool player_1 = true; // If true player_1 turn, 
-                            // otherwise player_2 turn
-
-
-   // Game states
-    int **coords = new int *[4];
-
-    fill_arr(coords, -1, 4);
+    fill_arr(coords, -1, num_ships, ship_sec);
 
     grid(length, width, num_rows, coords);
 
     for (int i = 0; i < num_ships; i++)
     {
-        place_ships(player_1_ships, *(coords + i));
+        place_ships(player_1_ships, coords, i);
         grid(length, width, num_rows, coords);
     }
     return 0;
