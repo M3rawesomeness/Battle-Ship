@@ -1,6 +1,6 @@
 #include <iostream>
 #include <algorithm>
-#include <typeinfo>
+
 using namespace std;
 
 void line(const int length)
@@ -13,19 +13,18 @@ void line(const int length)
     cout << endl;
 }
 
-bool contains(int arr[], int value, int arr_length)
+int contains(int **coords, int row, int col, int arr_length)
 {
     for (int i = 0; i < arr_length; i++)
     {
-        if (*(arr + i) == value)
+        if (coords[i][0] == col && coords[i][1] == row)
         {
             return true;
         }
     }
     return false;
 }
-
-void grid(int length, int width, int num_rows, int x[], int y[], int arr_length) 
+void grid(int length, int width, int num_rows, int **coords)
 {
     int space_between = length / num_rows;
     char lable = 'B';
@@ -35,7 +34,6 @@ void grid(int length, int width, int num_rows, int x[], int y[], int arr_length)
     int col = 0;
 
     int space_count = 0;
-
 
     cout << "     A"; // Formatting 
 
@@ -68,19 +66,21 @@ void grid(int length, int width, int num_rows, int x[], int y[], int arr_length)
                 col += 1;
                 space_count = 0;
             }
-            else if (space_count == 1) {
-                if (contains(x, col, arr_length) && contains(y, row, arr_length))
-                {
-                    cout << "*";
-                }
+            else if (space_count == 1 && contains(
+                    coords, row, col, 4))
+            {
+                cout << "*";
+                space_count += 1;
+
             }
             else
             {
                 cout << " ";
                 space_count += 1;
             }
-            row += 1;
         }
+        col = 0;
+        row += 1;
         cout << endl;
         line(length);
     }
@@ -110,7 +110,7 @@ bool valid_ship_chosen(const int input, bool ship_available[])
     return !*(ship_available + input - 1);
 }
 
-void place_ships(bool player_ships[], int *x, int *y)
+void place_ships(bool player_ships[], int *coords)
 {
     int input = -1;
 
@@ -128,25 +128,29 @@ void place_ships(bool player_ships[], int *x, int *y)
     *(player_ships + (input - 1)) = false;
     
     cout << "Enter x Coord: ";
-    cin >> *x;
+    cin >> coords[0];
 
     cout << endl;
     cout << "Enter y Coord: ";
-    cin >> *y;
+    cin >> coords[1];
 }
 
-void fill_arr(int arr[], int value, int arr_length)
+void fill_arr(int **arr, int value, int arr_length)
 {
     for (int i = 0; i < arr_length; i++)
     {
-        *(arr + i) = value;
+        arr[i] = new int[4];
+        for (int j = 0; j < arr_length; j++)
+        {
+            arr[i][j] = value;
+        }
     }
 }
 
 int main()
 {
     // Screen const
-    const int length = 49; 
+    const int length = 49;
     const int width = length / 4;
     const int num_rows = 12;
 
@@ -154,34 +158,24 @@ int main()
     bool player_1_ships[4] = {false, false, false, false};
     int num_ships = 4;
 
-    bool placing = true;
+    //bool placing = true;
 
-    bool running = true;
-    bool player_1 = true; // If true player_1 turn, 
-                          // otherwise player_2 turn
+    //bool running = true;
+    //bool player_1 = true; // If true player_1 turn, 
+                            // otherwise player_2 turn
 
 
-    int player_1_x[num_ships];
-    int player_1_y[num_ships];
-    int player_2_x[num_ships];
-    int player_2_y[num_ships];
- 
-    fill_arr(&player_1_x[0], -1, num_ships);
-    fill_arr(&player_1_y[0], -1, num_ships);
-    fill_arr(&player_2_x[0], -1, num_ships);
-    fill_arr(&player_2_y[0], -1, num_ships);
+   // Game states
+    int **coords = new int *[4];
 
-    // Game states
-    grid(length, width, num_rows, player_1_x, player_1_y, num_ships);
+    fill_arr(coords, -1, 4);
+
+    grid(length, width, num_rows, coords);
 
     for (int i = 0; i < num_ships; i++)
     {
-        int x = -1; 
-        int y = -1;
-        place_ships(player_1_ships, &x, &y);
-        *(player_1_x + i) = x;
-        *(player_1_y + i) = y;
-        grid(length, width, num_rows, player_1_x, player_1_y, num_ships);
+        place_ships(player_1_ships, *(coords + i));
+        grid(length, width, num_rows, coords);
     }
     return 0;
 }
