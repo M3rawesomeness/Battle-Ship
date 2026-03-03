@@ -2,9 +2,6 @@
 
 using namespace std;
 
-int num_ships = 4;
-int ship_sec = 19;
-
 void line(const int length)
 {
     cout << "   ";
@@ -27,7 +24,7 @@ int contains(int **coords, int row, int col, int arr_length)
     return false;
 }
 
-void grid(int length, int width, int num_rows, int **coords)
+void grid(int length, int width, int num_rows, int coords[12][12])
 {
     int space_between = length / num_rows;
     char lable = 'B';
@@ -60,6 +57,7 @@ void grid(int length, int width, int num_rows, int **coords)
         {
             cout << num << "  ";
         }
+
         num += 1;
         for (int i = 0; i < length; i++)
         {
@@ -69,11 +67,12 @@ void grid(int length, int width, int num_rows, int **coords)
                 col += 1;
                 space_count = 0;
             }
-            else if (space_count == 1 && contains(coords, row, col, num_ships))
+            else if (space_count == 1 && coords[j % 3][i % 3] == 1)
             {
-                cout << "*";
-                space_count += 1;
+                cout << "O";
+                space_count = 0;
             }
+
             else
             {
                 cout << " ";
@@ -180,26 +179,18 @@ int main()
     const int length = 49;
     const int width = length / 4;
     const int num_rows = 12;
-    // Game loop
-    bool player_1_ships[] = {false, false, false, false};
-    // Game states
-    //
 
-    int **coords;
-    coords = new int *[4];
-    for (int i = 0; i < 4; i++)
+    int coords[12][12]; // 0: No ship 1: ship
+    // Fills the array 0
+    for (int i = 0; i < 12; i++)
     {
-        coords[i] = new int[4];
+        for (int j = 0; j < 12; j++)
+        {
+            coords[i][j] = 0;
+        }
     }
-
-    fill_arr(coords, -1, num_ships, ship_sec);
 
     grid(length, width, num_rows, coords);
 
-    for (int i = 0; i < num_ships; i++)
-    {
-        place_ships(player_1_ships, coords, i);
-        grid(length, width, num_rows, coords);
-    }
     return 0;
 }
