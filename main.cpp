@@ -28,34 +28,42 @@ int contains(int **coords, int row, int col, int arr_length)
 void grid(int length, int width, int num_rows, int coords[12][12])
 {
     int space_between = length / num_rows;
-    char lable = 'B';
-    int num = 1;
+    int y_num = 1;
+    int x_num = 1;
     int x_row = -1;
     int y_col = -1;
     int space_count = 0;
 
-    cout << "     A"; // Formatting
-
+    cout << "     " << x_num; // Formatting
+    x_num++;
     for (int i = 0; i < num_rows - 1; i++)
     {
-        cout << "   ";
-        cout << lable;
-        lable += 1;
+        if (x_num < 11)
+        {
+            cout << "   ";
+            cout << x_num;
+        }
+        else
+        {
+            cout << "  ";
+            cout << x_num;
+        }
+        x_num += 1;
     }
 
     cout << endl;
     line(length);
     for (int j = 0; j < width; j++)
     {
-        if (num >= 10)
+        if (y_num >= 10)
         {
-            cout << num << " ";
+            cout << y_num << " ";
         }
         else
         {
-            cout << num << "  ";
+            cout << y_num << "  ";
         }
-        num += 1;
+        y_num += 1;
         x_row++;
         y_col = -1;
         for (int i = 0; i < length; i++)
@@ -70,7 +78,7 @@ void grid(int length, int width, int num_rows, int coords[12][12])
             {
                 if (coords[x_row][y_col] == 1)
                 {
-                    cout << "0";
+                    cout << "O";
                 }
                 else
                 {
@@ -128,6 +136,46 @@ void printArr(int coords[12][12])
     }
 }
 
+bool valid_coords(int x, int y, int dir, int size, int coords[12][12])
+{
+    if (x > 12 || y > 12 || x < 1 || y < 1)
+    {
+        return false;
+    }
+
+    if (coords[x - 1][y - 1] == 1)
+    {
+        return false;
+    }
+
+    if (dir > 1 || dir < 0)
+    {
+        return false;
+    }
+
+    if (dir == 1)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            if (coords[x + j - 1][y - 1] == 1)
+            {
+                return false;
+            }
+        }
+    }
+    else if (dir == 0)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            if (coords[x - 1][y + j - 1] == 1)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 int main()
 {
     // Screen const
@@ -148,51 +196,73 @@ int main()
         }
     }
 
-    for (int i = 0; i < num_ships; i++)
+    cout << "Player 1" << endl;
+    for (int i = 0; i < 2; i++)
     {
-        int ship_choice = -1;
-        print_ships_options();
-        cin >> ship_choice;
-
-        while (ship_choice < 1 || ship_choice > 4 ||
-               ships_chosen[ship_choice - 1])
+        for (int i = 0; i < num_ships; i++)
         {
-            cout << "Ship Chosen Already" << endl;
+            int ship_choice = -1;
             print_ships_options();
             cin >> ship_choice;
-        }
 
-        cout << "Enter X: ";
-        cin >> x;
-
-        cout << "Enter Y: ";
-        cin >> y;
-
-        cout << "H(0) / V(1): ";
-        cin >> dir;
-
-        grid(length, width, num_rows, coords);
-        size = get_size(ship_choice);
-        if (dir == 1)
-        {
-            for (int j = 0; j < size; j++)
+            while (ship_choice < 1 || ship_choice > 4 ||
+                   ships_chosen[ship_choice - 1])
             {
-                coords[x + j - 1][y - 1] = 1;
+                cout << "Ship Chosen Already" << endl;
+                print_ships_options();
+                cin >> ship_choice;
             }
-        }
-        else if (dir == 0)
-        {
-            for (int j = 0; j < size; j++)
+
+            cout << "Enter x: ";
+            cin >> y;
+
+            cout << "Enter y: ";
+            cin >> x;
+
+            cout << "H(0) / V(1): ";
+            cin >> dir;
+
+            size = get_size(ship_choice);
+
+            while (!valid_coords(x, y, dir, size, coords))
             {
-                coords[x - 1][y + j - 1] = 1;
+                cout << "Coordinates chosen are unavailable" << endl;
+                cout << "Please try again" << endl;
+                cout << "Enter x: ";
+                cin >> y;
+                cout << "Enter y: ";
+                cin >> x;
+                cout << "H(0) / V(1): ";
+                cin >> dir;
             }
+
+            if (dir == 1)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    coords[x + j - 1][y - 1] = 1;
+                }
+            }
+            else if (dir == 0)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    coords[x - 1][y + j - 1] = 1;
+                }
+            }
+            else
+            {
+                cout << "Err";
+            }
+
+            grid(length, width, num_rows, coords);
+
+            for (int i = 0; i < 20; i++)
+            {
+                line(50);
+            }
+            cout << "Player 2" << endl;
         }
-        else
-        {
-            cout << "Err";
-        }
-        printArr(coords);
-        grid(length, width, num_rows, coords);
     }
     return 0;
 }
