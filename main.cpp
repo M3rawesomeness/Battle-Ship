@@ -1,3 +1,4 @@
+#include <cinttypes>
 #include <iostream>
 
 using namespace std;
@@ -29,10 +30,8 @@ void grid(int length, int width, int num_rows, int coords[12][12])
     int space_between = length / num_rows;
     char lable = 'B';
     int num = 1;
-
-    int row = 1;
-    int col = 0;
-
+    int x_row = -1;
+    int y_col = -1;
     int space_count = 0;
 
     cout << "     A"; // Formatting
@@ -46,7 +45,6 @@ void grid(int length, int width, int num_rows, int coords[12][12])
 
     cout << endl;
     line(length);
-
     for (int j = 0; j < width; j++)
     {
         if (num >= 10)
@@ -57,30 +55,35 @@ void grid(int length, int width, int num_rows, int coords[12][12])
         {
             cout << num << "  ";
         }
-
         num += 1;
+        x_row++;
+        y_col = -1;
         for (int i = 0; i < length; i++)
         {
             if (i % space_between == 0)
             {
                 cout << "|";
-                col += 1;
+                y_col++;
                 space_count = 0;
             }
-            else if (space_count == 1 && coords[j % 3][i % 3] == 1)
+            else if (space_count == 1)
             {
-                cout << "O";
+                if (coords[x_row][y_col] == 1)
+                {
+                    cout << "0";
+                }
+                else
+                {
+                    cout << " ";
+                }
                 space_count = 0;
             }
-
             else
             {
                 cout << " ";
                 space_count += 1;
             }
         }
-        col = 0;
-        row += 1;
         cout << endl;
         line(length);
     }
@@ -94,82 +97,34 @@ void print_ships_options()
     cout << "2. Destroyer  (4x1)" << endl;
     cout << "3. Tanker     (3x1)" << endl;
     cout << "4. Jet        (2x1)" << endl;
+    cout << "Enter: ";
 }
 
-bool valid_ship_num(const int input)
+int get_size(int choice)
 {
-    return input == 1 || input == 2 || input == 3 || input == 4;
-}
-
-bool valid_ship_chosen(const int input, bool ship_available[])
-{
-    if (input > 4 || input < 1)
-    {
-        return false;
-    }
-    return !*(ship_available + input - 1);
-}
-
-int calc_len_ship(int ship)
-{
-    switch (ship)
+    switch (choice)
     {
     case 1:
         return 5;
-        break;
     case 2:
         return 4;
-        break;
     case 3:
         return 3;
-        break;
     case 4:
         return 2;
-        break;
-    default:
-        return -1;
     }
-}
-void place_ships(bool player_ships[], int **coords, int index)
-{
-    int curr_ship = -1; // Default value, if stays, error
-    // This donest work : int coords[] = all_coords;
-    print_ships_options();
-    cout << "Enter: " << endl;
-    cin >> curr_ship;
-
-    // Validate Inputs
-    while (!valid_ship_num(curr_ship) ||
-           !valid_ship_chosen(curr_ship, &player_ships[0]))
-    {
-        cout << "Error, try again" << endl;
-        cout << "Enter: ";
-        cin >> curr_ship;
-    }
-    *(player_ships + (curr_ship - 1)) = false;
-
-    coords[index][3] = calc_len_ship(curr_ship);
-
-    cout << "Enter X Coord: ";
-    cin >> coords[index][0];
-
-    cout << endl;
-    cout << "Enter Y Coord: ";
-    cin >> coords[index][1];
-
-    cout << endl;
-    cout << "Enter Direction(0 for H/1 for V): ";
-    cin >> coords[index][2];
+    return -1;
 }
 
-void fill_arr(int **arr, int value, int length1, int length2)
+void printArr(int coords[12][12])
 {
-    for (int i = 0; i < length1; i++)
+    for (int i = 0; i < 12; i++)
     {
-        for (int j = 0; j < length2; j++)
+        for (int j = 0; j < 12; j++)
         {
-            arr[i][j] = value;
+            cout << coords[i][j] << " ";
         }
+        cout << endl;
     }
 }
 
@@ -179,8 +134,11 @@ int main()
     const int length = 49;
     const int width = length / 4;
     const int num_rows = 12;
+    const int num_ships = 4;
 
+    bool ships_chosen[] = {false, false, false, false};
     int coords[12][12]; // 0: No ship 1: ship
+    int x, y, dir, size = -1;
     // Fills the array 0
     for (int i = 0; i < 12; i++)
     {
@@ -190,7 +148,51 @@ int main()
         }
     }
 
-    grid(length, width, num_rows, coords);
+    for (int i = 0; i < num_ships; i++)
+    {
+        int ship_choice = -1;
+        print_ships_options();
+        cin >> ship_choice;
 
+        while (ship_choice < 1 || ship_choice > 4 ||
+               ships_chosen[ship_choice - 1])
+        {
+            cout << "Ship Chosen Already" << endl;
+            print_ships_options();
+            cin >> ship_choice;
+        }
+
+        cout << "Enter X: ";
+        cin >> x;
+
+        cout << "Enter Y: ";
+        cin >> y;
+
+        cout << "H(0) / V(1): ";
+        cin >> dir;
+
+        grid(length, width, num_rows, coords);
+        size = get_size(ship_choice);
+        if (dir == 1)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                coords[x + j - 1][y - 1] = 1;
+            }
+        }
+        else if (dir == 0)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                coords[x - 1][y + j - 1] = 1;
+            }
+        }
+        else
+        {
+            cout << "Err";
+        }
+        printArr(coords);
+        grid(length, width, num_rows, coords);
+    }
     return 0;
 }
