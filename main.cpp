@@ -1,4 +1,3 @@
-#include <cinttypes>
 #include <iostream>
 
 using namespace std;
@@ -80,6 +79,8 @@ void grid(int length, int width, int num_rows, int coords[12][12])
                 {
                     cout << "O";
                 }
+                else if (coords[x_row][y_col] == 2)
+                    cout << "X";
                 else
                 {
                     cout << " ";
@@ -176,6 +177,27 @@ bool valid_coords(int x, int y, int dir, int size, int coords[12][12])
     return true;
 }
 
+bool shipsAlive(int coords[12][12])
+{
+    for (int i = 0; i < 12; i++)
+    {
+        for (int j = 0; j < 12; j++)
+        {
+            if (coords[i][j] == 1)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+typedef struct player_struct
+{
+    int coords[12][12];
+    int attack_coords[12][12];
+} Player;
+
 int main()
 {
     // Screen const
@@ -185,19 +207,28 @@ int main()
     const int num_ships = 4;
 
     bool ships_chosen[] = {false, false, false, false};
-    int coords[12][12]; // 0: No ship 1: ship
-    int x, y, dir, size = -1;
+    Player *p1 = (Player *)malloc(sizeof(Player));
+    Player *p2 = (Player *)malloc(sizeof(Player));
+    Player *players[2] = {p1, p2};
+    int player_1 = 0;
+    int player_2 = 0;
+
+    int place_row, place_col, dir, size = -1;
+
     // Fills the array 0
     for (int i = 0; i < 12; i++)
     {
         for (int j = 0; j < 12; j++)
         {
-            coords[i][j] = 0;
+            p1->coords[i][j] = 0;
+            p2->coords[i][j] = 0;
+            p1->attack_coords[i][j] = 0;
+            p2->attack_coords[i][j] = 0;
         }
     }
 
     cout << "Player 1" << endl;
-    for (int i = 0; i < 2; i++)
+    for (int player = 0; player < 2; player++)
     {
         for (int i = 0; i < num_ships; i++)
         {
@@ -214,24 +245,25 @@ int main()
             }
 
             cout << "Enter x: ";
-            cin >> y;
+            cin >> place_row;
 
             cout << "Enter y: ";
-            cin >> x;
+            cin >> place_col;
 
             cout << "H(0) / V(1): ";
             cin >> dir;
 
             size = get_size(ship_choice);
 
-            while (!valid_coords(x, y, dir, size, coords))
+            while (!valid_coords(place_row, place_col, dir, size,
+                                 players[player]->coords))
             {
                 cout << "Coordinates chosen are unavailable" << endl;
                 cout << "Please try again" << endl;
                 cout << "Enter x: ";
-                cin >> y;
+                cin >> place_row;
                 cout << "Enter y: ";
-                cin >> x;
+                cin >> place_col;
                 cout << "H(0) / V(1): ";
                 cin >> dir;
             }
@@ -240,14 +272,16 @@ int main()
             {
                 for (int j = 0; j < size; j++)
                 {
-                    coords[x + j - 1][y - 1] = 1;
+                    players[player]->coords[place_row + j - 1][place_col - 1] =
+                        1;
                 }
             }
             else if (dir == 0)
             {
                 for (int j = 0; j < size; j++)
                 {
-                    coords[x - 1][y + j - 1] = 1;
+                    players[player]->coords[place_row - 1][place_col + j - 1] =
+                        1;
                 }
             }
             else
@@ -255,14 +289,28 @@ int main()
                 cout << "Err";
             }
 
-            grid(length, width, num_rows, coords);
+            grid(length, width, num_rows, players[player]->coords);
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 100; i++)
             {
-                line(50);
+                line(100);
             }
             cout << "Player 2" << endl;
         }
     }
+
+    // Attacking Phase
+    bool player_turn = true; // true: Player 1, false: Player 2
+    int attack_row, attack_col = 0;
+    while (!shipsAlive(players[player_1]->coords) ||
+           !shipsAlive(players[player_2]->coords))
+    {
+        cout << "Enter Attack Coordinate X: ";
+        cin >> attack_col;
+        cout << "Enter Attack Coordinate Y: ";
+        cin >> attack_row;
+    }
+    free(p1);
+    free(p2);
     return 0;
 }
