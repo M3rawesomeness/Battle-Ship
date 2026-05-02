@@ -300,7 +300,7 @@ int main()
     }
 
     // Attacking Phase
-    bool player_turn = true; // true: Player 1, false: Player 2
+    bool player_turn = 0; // 0: Player 1, 1: Player 2
     int attack_row, attack_col = 0;
     while (!shipsAlive(players[player_1]->coords) ||
            !shipsAlive(players[player_2]->coords))
@@ -309,6 +309,26 @@ int main()
         cin >> attack_col;
         cout << "Enter Attack Coordinate Y: ";
         cin >> attack_row;
+        while (players[player_turn]->attack_coords[attack_row][attack_col] == 1)
+        {
+            cout << "Error" << endl;
+            cout << "Enter Attack Coords X: ";
+            cin >> attack_col;
+            cout << "Enter Attack Coords Y: ";
+            cin >> attack_row;
+        }
+        if (player_turn)
+        {
+            player_turn = 0;
+        }
+        else
+        {
+            player_turn = 1;
+        }
+
+        if (players[player_turn]->attack_coords[attack_row][attack_col] == 1)
+        {
+        }
     }
     free(p1);
     free(p2);
