@@ -6,6 +6,7 @@ typedef struct battleship
 {
     int x;
     int y;
+    char dir;
     int len;
 } battleship;
 
@@ -15,6 +16,7 @@ battleship *create_ship(const int len)
 
     p->x = -1;
     p->y = -1;
+    p->dir = ' ';
     p->len = len;
     return p;
 }
@@ -50,7 +52,7 @@ void print_ships(int grid[12][12], int num_ships)
         {
             if (grid[i][j] == 1)
             {
-                cout << " o";
+                cout << "o";
             }
             else
             {
@@ -63,18 +65,41 @@ void print_ships(int grid[12][12], int num_ships)
     }
 }
 
-void place_ships(battleship *ships[], int num_ships, int grid[12][12])
+void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
 {
-    auto temp = 0;
     for (int i = 0; i < num_ships; i++)
     {
+        constexpr int char_index_displacement = 60;
         cout << "For " << ships[i]->len << "x" << ships[i]->len << endl;
         cout << "enter X coord: ";
         cin >> ships[i]->x;
         cout << "enter Y coord: ";
         cin >> ships[i]->y;
+        cout << "enter Dir (u/d/l/r): ";
+        cin >> ships[i]->dir;
 
-        grid[ships[i]->x][ships[i]->y] = 1;
+        grid[ships[i]->x - 1][ships[i]->y - 1] = 1;
+        ships[i]->y -= char_index_displacement;
+
+        for (int j = 0; j < ships[i]->len; j++)
+        {
+            if (ships[i]->dir == 'r')
+            {
+                grid[ships[i]->x - 1][ships[i]->y - 1 + j] = 1;
+            }
+            else if (ships[i]->dir == 'l')
+            {
+                grid[ships[i]->x - 1][ships[i]->y - 1 - j] = 1;
+            }
+            else if (ships[i]->dir == 'd')
+            {
+                grid[ships[i]->x - 1 + j][ships[i]->y - 1] = 1;
+            }
+            else if (ships[i]->dir == 'u')
+            {
+                grid[ships[i]->x - 1 - j][ships[i]->y - 1] = 1;
+            }
+        }
         print_ships(grid, num_ships);
     }
 }
@@ -86,7 +111,7 @@ void set_grid(int grid[12][12])
             grid[i][j] = -1;
 }
 
-void gen_ships(battleship *ships[], int num_ships, int sizes[])
+void gen_ships(battleship *ships[], const int num_ships, int sizes[])
 {
     for (int i = 0; i < num_ships; i++)
     {
@@ -94,13 +119,13 @@ void gen_ships(battleship *ships[], int num_ships, int sizes[])
     }
 }
 
-void clear_ships(battleship *ships[], int num_ships)
+void clear_ships(battleship *ships[], const int num_ships)
 {
     for (int i = 0; i < num_ships; i++)
         delete ships[i];
 }
 
-int main()
+int test_main()
 // Main for testing
 {
     constexpr int num_ships = 4;
@@ -108,9 +133,10 @@ int main()
 
     set_grid(grid);
     print_ships(grid, num_ships);
+    return 0;
 }
 
-int tmain()
+int main()
 {
     constexpr int arr_length = 49;
     int width = arr_length / 4;
@@ -131,6 +157,7 @@ int tmain()
     cout << "hello! welcome to battleship!" << endl;
     cout << "would you like custom ships? (y/n): ";
     cin >> ans;
+
     while (ans != "y" && ans != "n")
     {
         cout << "invalid choice, try again: ";
