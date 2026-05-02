@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -83,19 +84,19 @@ void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
 
         for (int j = 0; j < ships[i]->len; j++)
         {
-            if (ships[i]->dir == 'r')
+            if (ships[i]->dir == 'r' && ships[i]->y - 1 + j <= 11)
             {
                 grid[ships[i]->x - 1][ships[i]->y - 1 + j] = 1;
             }
-            else if (ships[i]->dir == 'l')
+            else if (ships[i]->dir == 'l' && ships[i]->y - 1 + j >= 0)
             {
                 grid[ships[i]->x - 1][ships[i]->y - 1 - j] = 1;
             }
-            else if (ships[i]->dir == 'd')
+            else if (ships[i]->dir == 'd' && ships[i]->x - 1 + j <= 11)
             {
                 grid[ships[i]->x - 1 + j][ships[i]->y - 1] = 1;
             }
-            else if (ships[i]->dir == 'u')
+            else if (ships[i]->dir == 'u' && ships[i]->x - 1 - j >= 0)
             {
                 grid[ships[i]->x - 1 - j][ships[i]->y - 1] = 1;
             }
@@ -169,6 +170,7 @@ int main()
     }
     else
     {
+        // Default ship sizes
         int sizes[5] = {5, 4, 3, 3, 2};
 
         gen_ships(p1_ships, num_ships, sizes);
@@ -179,6 +181,17 @@ int main()
     place_ships(p1_ships, num_ships, p1_grid); // gets the x and y
     print_ships(p1_grid, num_ships);           // prints the grid
 
+    system("cls");
+
+    cout << "**********player 2 turn**********" << endl;
+    place_ships(p2_ships, num_ships, p2_grid); // gets the x and y
+    print_ships(p2_grid, num_ships);           // prints the grid
+
+    system("cls");
+
+    // Attacking Phase
+
     clear_ships(p1_ships, num_ships);
+    clear_ships(p2_ships, num_ships);
     return 0;
 }
