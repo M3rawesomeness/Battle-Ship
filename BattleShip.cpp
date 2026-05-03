@@ -307,10 +307,6 @@ void stall()
 
 int main()
 {
-    constexpr int arr_length = 49;
-    int width = arr_length / 4;
-    constexpr int num_rows = 12;
-    int num_cols = num_rows;
     constexpr int num_ships = 5;
 
     int p1_grid[12][12];
@@ -371,7 +367,6 @@ int main()
     stall();
     system("cls");
 
-    // TODO: Attacking Phase
     while (!game_over(p1_grid) && !game_over(p2_grid))
     {
         cout << "**********player 1 turn**********" << endl;
