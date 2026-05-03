@@ -83,26 +83,26 @@ bool valid_dir(const char dir, const int len, const int x, const int y)
 
 void check_coord(int grid[12][12], int *x, int *y)
 {
-    while (*x > 11 || *x < 0 ||  *y > 12 || *y < 0 || grid[*x][*y] == 1)
+    while (*x > 11 || *x < 0 ||  *y > 11 || *y < 0 || grid[*x][*y] == 1)
     {
+        cout << "Made in here " << *x << " " << *y << endl;
         cout << "Invalid coordinate pressed" << endl;
         cout << "Enter X coord";
-        cin >> *x;
-        cout << "Enter Y coord";
         cin >> *y;
+        cout << "Enter Y coord";
+        cin >> *x;
     }
 }
 
 void reask_coord(int *x,  int *y, char *dir)
 {
     cout << "Invalid Coord, please try again" << endl;
-    cout << "Enters X coord";
-    cin >> *x;
-    cout << "Enter Y coord";
+    cout << "Enters X coord: ";
     cin >> *y;
+    cout << "Enter Y coord: ";
+    cin >> *x;
     cout << "Enter Dir: ";
     cin >> *dir;
-
 }
 
 void check_dir(int grid[12][12], int *x, int *y, char *dir, const int len)
@@ -111,17 +111,18 @@ void check_dir(int grid[12][12], int *x, int *y, char *dir, const int len)
     while (!valid_dir(*dir, len, *x, *y))
     {
         cout << "Invalid Direction" << endl;
-        cout << "Enter X coord";
-        cin >> *x;
-        cout << "Enter Y coord";
+        cout << "Enter X coord: ";
         cin >> *y;
+        cout << "Enter Y coord: ";
+        cin >> *x;
         cout << "Enter Dir: ";
         cin >> *dir;
 
         check_coord(grid, x, y);
-        x -= 1;
-        y -= 1;
+        *x -= 1;
+        *y -= 1;
     }
+
     for (int i = 0; i < len; i++)
     {
         switch (*dir)
@@ -171,11 +172,11 @@ void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
     for (int i = 0; i < num_ships; i++)
     {
         cout << "Enter X coord: ";
-        cin >> ships[i]->x;
-        ships[i]->x -= 1;
-        cout << "Enter Y coord: ";
         cin >> ships[i]->y;
         ships[i]->y -= 1;
+        cout << "Enter Y coord: ";
+        cin >> ships[i]->x;
+        ships[i]->x -= 1;
 
         check_coord(grid, &ships[i]->x, &ships[i]->y);
 
@@ -183,6 +184,29 @@ void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
         cin >> ships[i]->dir;
 
         check_dir(grid, &ships[i]->x, &ships[i]->y, &ships[i]->dir, ships[i]->len);
+
+        // At this point coordinates should be valid...
+        for (int j = 0; j < ships[i]->len; j++)
+        {
+            switch (ships[i]->dir)
+            {
+            case 'u':
+                grid[ships[i]->x - j][ships[i]->y] = 1;
+                break;
+            case 'd':
+                grid[ships[i]->x + j][ships[i]->y] = 1;
+                break;
+            case 'l':
+                grid[ships[i]->x][ships[i]->y - j] = 1;
+                break;
+            case 'r':
+                grid[ships[i]->x][ships[i]->y + j] = 1;
+                break;
+            default:
+                break;
+            }
+        }
+        print_ships(grid, num_ships);
     }
 }
 
