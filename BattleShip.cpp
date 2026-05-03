@@ -81,76 +81,108 @@ bool valid_dir(const char dir, const int len, const int x, const int y)
     return true;
 }
 
-void check_dir(char *dir, const int len, const int x, const int y)
+void check_coord(int grid[12][12], int *x, int *y)
 {
-    while (!valid_dir(*dir, len, x, y))
+    while (*x > 11 || *x < 0 ||  *y > 12 || *y < 0 || grid[*x][*y] == 1)
     {
-        cout << "Error with dir." << endl;
-        cout << "Enter Dir (u/d/l/r): ";
+        cout << "Invalid coordinate pressed" << endl;
+        cout << "Enter X coord";
+        cin >> *x;
+        cout << "Enter Y coord";
+        cin >> *y;
+    }
+}
+
+void reask_coord(int *x,  int *y, char *dir)
+{
+    cout << "Invalid Coord, please try again" << endl;
+    cout << "Enters X coord";
+    cin >> *x;
+    cout << "Enter Y coord";
+    cin >> *y;
+    cout << "Enter Dir: ";
+    cin >> *dir;
+
+}
+
+void check_dir(int grid[12][12], int *x, int *y, char *dir, const int len)
+{
+    check_coord(grid, x, y);
+    while (!valid_dir(*dir, len, *x, *y))
+    {
+        cout << "Invalid Direction" << endl;
+        cout << "Enter X coord";
+        cin >> *x;
+        cout << "Enter Y coord";
+        cin >> *y;
+        cout << "Enter Dir: ";
         cin >> *dir;
+
+        check_coord(grid, x, y);
+        x -= 1;
+        y -= 1;
+    }
+    for (int i = 0; i < len; i++)
+    {
+        switch (*dir)
+        {
+        case 'u':
+            if (grid[*x - i][*y] == 1)
+            {
+                reask_coord(x, y, dir);
+                check_coord(grid, x, y);
+                i = 0;
+            }
+            break;
+        case 'd':
+            if (grid[*x + i][*y] == 1)
+            {
+                reask_coord(x, y, dir);
+                check_coord(grid, x, y);
+                i = 0;
+            }
+            break;
+        case 'r':
+            if (grid[*x][*y + i] == 1)
+            {
+                reask_coord(x, y, dir);
+                check_coord(grid, x, y);
+                i = 0;
+            }
+            break;
+        case 'l':
+            if (grid[*x][*y - i] == 1)
+            {
+                reask_coord(x, y, dir);
+                check_coord(grid, x, y);
+                i = 0;
+            }
+            break;
+        default:
+            reask_coord(x, y, dir);
+            check_coord(grid, x, y);
+            i = 0;
+        }
     }
 }
 
 void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
 {
-    // TODO: This is broken logic, it does not work
     for (int i = 0; i < num_ships; i++)
     {
-        constexpr int char_index_displacement = 60;
-        cout << "For " << ships[i]->len << "x" << ships[i]->len << endl;
         cout << "Enter X coord: ";
-        cin >> ships[i]->y;
-        cout << "Enter Y coord: ";
         cin >> ships[i]->x;
-        cout << "Enter Dir (u/d/l/r): ";
+        ships[i]->x -= 1;
+        cout << "Enter Y coord: ";
+        cin >> ships[i]->y;
+        ships[i]->y -= 1;
+
+        check_coord(grid, &ships[i]->x, &ships[i]->y);
+
+        cout << "Enter Dir: ";
         cin >> ships[i]->dir;
 
-        for (int k = 0; k < 12; k++)
-        {
-            for (int p = 0; p < 12; p++)
-            {
-                cout << grid[k][p] << " ";
-            }
-            cout << endl;
-        }
-
-        check_dir(&ships[i]->dir, ships[i]->len, ships[i]->x, ships[i]->y);
-
-        grid[ships[i]->x - 1][ships[i]->y - 1] = 1;
-
-        for (int j = 0; j < ships[i]->len; j++)
-        {
-            if (ships[i]->dir == 'r' && ships[i]->y - 1 + j <= 11 &&
-                grid[ships[i]->x - 1][ships[i]->y - 1 + j] != 1)
-            {
-                grid[ships[i]->x - 1][ships[i]->y - 1 + j] = 1;
-            }
-            else if (ships[i]->dir == 'l' && ships[i]->y - 1 - j >= 0 &&
-                grid[ships[i]->x - 1][ships[i]->y - 1 - j] != 1)
-            {
-                grid[ships[i]->x - 1][ships[i]->y - 1 - j] = 1;
-            }
-            else if (ships[i]->dir == 'd' && ships[i]->x - 1 + j <= 11 &&
-                grid[ships[i]->x - 1 + j][ships[i]->y - 1] != 1)
-            {
-                grid[ships[i]->x - 1 + j][ships[i]->y - 1] = 1;
-            }
-            else if (ships[i]->dir == 'u' && ships[i]->x - 1 - j >= 0 &&
-                grid[ships[i]->x - 1 - j][ships[i]->y - 1] != 1)
-            {
-                grid[ships[i]->x - 1 - j][ships[i]->y - 1] = 1;
-            }
-            else
-            {
-                j = 0;
-                cout << "Current direction invalid." << endl;
-                cout << "Please try again." << endl;
-                cout << "Enter Dir (u/d/l/r): ";
-                cin >> ships[i]->dir;
-                check_dir(&ships[i]->dir, ships[i]->len, ships[i]->x, ships[i]->y);
-            }
-        }
-        print_ships(grid, num_ships);
+        check_dir(grid, &ships[i]->x, &ships[i]->y, &ships[i]->dir, ships[i]->len);
     }
 }
 
