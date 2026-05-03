@@ -30,7 +30,7 @@ void print_line(const int len)
     cout << "-" << endl;
 }
 
-void print_ships(int grid[12][12], int num_ships)
+void print_screen(int grid[12][12], int num_ships)
 {
     // Prints numbers
     cout << "   ";
@@ -54,6 +54,10 @@ void print_ships(int grid[12][12], int num_ships)
             if (grid[i][j] == 1)
             {
                 cout << "o";
+            }
+            else if (grid[i][j] == 0)
+            {
+                cout << "x";
             }
             else
             {
@@ -206,7 +210,7 @@ void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
                 break;
             }
         }
-        print_ships(grid, num_ships);
+        print_screen(grid, num_ships);
     }
 }
 
@@ -238,8 +242,52 @@ int test_main()
     int grid[12][12];
 
     set_grid(grid);
-    print_ships(grid, num_ships);
+    print_screen(grid, num_ships);
     return 0;
+}
+
+bool game_over(int grid[12][12], int atk[12][12])
+/*
+ * TODO: this function
+ */
+{ return false; }
+
+void attack(int grid[12][12], int atk[12][12])
+{
+    int x = -1;
+    int y = -1;
+
+    cout << "Entering attack mode..." << endl;
+    cout << "Enter X Coord: ";
+    cin >> y;
+    cout << "Enter Y Coord: ";
+    cin >> x;
+    y -= 1;
+    x -= 1;
+    check_coord(atk, &x, &y);
+
+    // 0 is a successful attack, 1 is an insuccessful attack
+    while (atk[x][y] == 0 || atk[x][y] == 1)
+    {
+        cout << "Already attacked here" << endl;
+        cout << "Enter X Coord: ";
+        cin >> y;
+        cout << "Enter Y Coord: ";
+        cin >> x;
+        y -= 1;
+        x -= 1;
+        check_coord(atk, &x, &y);
+    }
+    if (grid[x][y] == 1)
+    {
+        grid[x][y] = 0;
+        atk[x][y] = 0;
+    }
+    else
+    {
+        cout << "Missed Attack!";
+        atk[x][y] = 1;
+    }
 }
 
 int main()
@@ -252,9 +300,14 @@ int main()
 
     int p1_grid[12][12];
     int p2_grid[12][12];
+    int p1_atk_grid[12][12];
+    int p2_atk_grid[12][12];
 
     set_grid(p1_grid);
     set_grid(p2_grid);
+    set_grid(p1_atk_grid);
+    set_grid(p2_atk_grid);
+
     string ans;
 
     battleship *p1_ships[num_ships];
@@ -285,20 +338,23 @@ int main()
 
     cout << "**********player 1 turn**********" << endl;
     place_ships(p1_ships, num_ships, p1_grid); // gets the x and y
-    print_ships(p1_grid, num_ships);           // prints the grid
+    print_screen(p1_grid, num_ships);           // prints the grid
 
     system("cls");
 
     cout << "**********player 2 turn**********" << endl;
     place_ships(p2_ships, num_ships, p2_grid); // gets the x and y
-    print_ships(p2_grid, num_ships);           // prints the grid
+    print_screen(p2_grid, num_ships);          // prints the grid
 
     system("cls");
-
     // TODO: Attacking Phase
-
+    while (!game_over(p1_grid, p2_atk_grid) && !game_over(p2_grid, p1_atk_grid))
+    {
+        cout << "**********player 1 turn**********" << endl;
+        attack(p2_grid, p1_atk_grid);
+    }
+    cout << "Game is over!";
     clear_ships(p1_ships, num_ships);
     clear_ships(p2_ships, num_ships);
-
     return 0;
 }
