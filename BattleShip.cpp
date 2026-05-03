@@ -66,39 +66,88 @@ void print_ships(int grid[12][12], int num_ships)
     }
 }
 
+bool valid_dir(const char dir, const int len, const int x, const int y)
+{
+    if (dir != 'r' && dir != 'l' && dir != 'd' && dir != 'u')
+        return false;
+    if (dir == 'r' && x + len > 12)
+        return false;
+    if (dir == 'l' && x - len < 0)
+        return false;
+    if (dir == 'u' && y - len < 0)
+        return false;
+    if (dir == 'd' && y + len > 12)
+        return false;
+    return true;
+}
+
+void check_dir(char *dir, const int len, const int x, const int y)
+{
+    while (!valid_dir(*dir, len, x, y))
+    {
+        cout << "Error with dir." << endl;
+        cout << "Enter Dir (u/d/l/r): ";
+        cin >> *dir;
+    }
+}
+
 void place_ships(battleship *ships[], const int num_ships, int grid[12][12])
 {
+    // TODO: This is broken logic, it does not work
     for (int i = 0; i < num_ships; i++)
     {
         constexpr int char_index_displacement = 60;
         cout << "For " << ships[i]->len << "x" << ships[i]->len << endl;
-        cout << "enter X coord: ";
-        cin >> ships[i]->x;
-        cout << "enter Y coord: ";
+        cout << "Enter X coord: ";
         cin >> ships[i]->y;
-        cout << "enter Dir (u/d/l/r): ";
+        cout << "Enter Y coord: ";
+        cin >> ships[i]->x;
+        cout << "Enter Dir (u/d/l/r): ";
         cin >> ships[i]->dir;
 
+        for (int k = 0; k < 12; k++)
+        {
+            for (int p = 0; p < 12; p++)
+            {
+                cout << grid[k][p] << " ";
+            }
+            cout << endl;
+        }
+
+        check_dir(&ships[i]->dir, ships[i]->len, ships[i]->x, ships[i]->y);
+
         grid[ships[i]->x - 1][ships[i]->y - 1] = 1;
-        ships[i]->y -= char_index_displacement;
 
         for (int j = 0; j < ships[i]->len; j++)
         {
-            if (ships[i]->dir == 'r' && ships[i]->y - 1 + j <= 11)
+            if (ships[i]->dir == 'r' && ships[i]->y - 1 + j <= 11 &&
+                grid[ships[i]->x - 1][ships[i]->y - 1 + j] != 1)
             {
                 grid[ships[i]->x - 1][ships[i]->y - 1 + j] = 1;
             }
-            else if (ships[i]->dir == 'l' && ships[i]->y - 1 + j >= 0)
+            else if (ships[i]->dir == 'l' && ships[i]->y - 1 - j >= 0 &&
+                grid[ships[i]->x - 1][ships[i]->y - 1 - j] != 1)
             {
                 grid[ships[i]->x - 1][ships[i]->y - 1 - j] = 1;
             }
-            else if (ships[i]->dir == 'd' && ships[i]->x - 1 + j <= 11)
+            else if (ships[i]->dir == 'd' && ships[i]->x - 1 + j <= 11 &&
+                grid[ships[i]->x - 1 + j][ships[i]->y - 1] != 1)
             {
                 grid[ships[i]->x - 1 + j][ships[i]->y - 1] = 1;
             }
-            else if (ships[i]->dir == 'u' && ships[i]->x - 1 - j >= 0)
+            else if (ships[i]->dir == 'u' && ships[i]->x - 1 - j >= 0 &&
+                grid[ships[i]->x - 1 - j][ships[i]->y - 1] != 1)
             {
                 grid[ships[i]->x - 1 - j][ships[i]->y - 1] = 1;
+            }
+            else
+            {
+                j = 0;
+                cout << "Current direction invalid." << endl;
+                cout << "Please try again." << endl;
+                cout << "Enter Dir (u/d/l/r): ";
+                cin >> ships[i]->dir;
+                check_dir(&ships[i]->dir, ships[i]->len, ships[i]->x, ships[i]->y);
             }
         }
         print_ships(grid, num_ships);
@@ -164,9 +213,10 @@ int main()
         cout << "invalid choice, try again: ";
         cin >> ans;
     }
+
     if (ans == "y")
     {
-        // logic for choosing ships
+        // TODO: logic for choosing ships
     }
     else
     {
@@ -176,8 +226,8 @@ int main()
         gen_ships(p1_ships, num_ships, sizes);
         gen_ships(p2_ships, num_ships, sizes);
     }
-    cout << "**********player 1 turn**********" << endl;
 
+    cout << "**********player 1 turn**********" << endl;
     place_ships(p1_ships, num_ships, p1_grid); // gets the x and y
     print_ships(p1_grid, num_ships);           // prints the grid
 
@@ -189,9 +239,10 @@ int main()
 
     system("cls");
 
-    // Attacking Phase
+    // TODO: Attacking Phase
 
     clear_ships(p1_ships, num_ships);
     clear_ships(p2_ships, num_ships);
+
     return 0;
 }
