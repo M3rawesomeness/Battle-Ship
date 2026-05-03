@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdlib>
-#include "testing"
+
 using namespace std;
 
 typedef struct battleship
@@ -247,9 +247,6 @@ int test_main()
 }
 
 bool game_over(int grid[12][12])
-/*
- * TODO: this function
- */
 {
     for (int i = 0; i < 12; i++)
     {
@@ -343,13 +340,19 @@ int main()
 
     if (ans == "y")
     {
-        // TODO: logic for choosing ships
+        int sizes[5];
+        for (int i = 0; i < num_ships; i++)
+        {
+            cout << "Enter size for ship " << i + 1;
+            cin >> sizes[i];
+        }
+        gen_ships(p1_ships, num_ships, sizes);
+        gen_ships(p2_ships, num_ships, sizes);
     }
     else
     {
         // Default ship sizes
         int sizes[5] = {5, 4, 3, 3, 2};
-
         gen_ships(p1_ships, num_ships, sizes);
         gen_ships(p2_ships, num_ships, sizes);
     }
