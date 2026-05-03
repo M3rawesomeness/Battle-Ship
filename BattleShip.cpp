@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdlib>
-
+#include "testing"
 using namespace std;
 
 typedef struct battleship
@@ -246,11 +246,21 @@ int test_main()
     return 0;
 }
 
-bool game_over(int grid[12][12], int atk[12][12])
+bool game_over(int grid[12][12])
 /*
  * TODO: this function
  */
-{ return false; }
+{
+    for (int i = 0; i < 12; i++)
+    {
+        for (int j = 0; j < 12; j++)
+        {
+            if (grid[i][j] == 1)
+                return false;
+        }
+    }
+    return true;
+}
 
 void attack(int grid[12][12], int atk[12][12])
 {
@@ -280,6 +290,7 @@ void attack(int grid[12][12], int atk[12][12])
     }
     if (grid[x][y] == 1)
     {
+        cout << "Attack Landed!";
         grid[x][y] = 0;
         atk[x][y] = 0;
     }
@@ -288,6 +299,13 @@ void attack(int grid[12][12], int atk[12][12])
         cout << "Missed Attack!";
         atk[x][y] = 1;
     }
+}
+
+void stall()
+{
+    char temp;
+    cout << "Enter Any Key to Continue: ";
+    cin >> temp;
 }
 
 int main()
@@ -335,26 +353,37 @@ int main()
         gen_ships(p1_ships, num_ships, sizes);
         gen_ships(p2_ships, num_ships, sizes);
     }
-
+    char temp;
     cout << "**********player 1 turn**********" << endl;
     place_ships(p1_ships, num_ships, p1_grid); // gets the x and y
     print_screen(p1_grid, num_ships);           // prints the grid
 
+    stall();
     system("cls");
 
     cout << "**********player 2 turn**********" << endl;
     place_ships(p2_ships, num_ships, p2_grid); // gets the x and y
     print_screen(p2_grid, num_ships);          // prints the grid
 
+    stall();
     system("cls");
+
     // TODO: Attacking Phase
-    while (!game_over(p1_grid, p2_atk_grid) && !game_over(p2_grid, p1_atk_grid))
+    while (!game_over(p1_grid) && !game_over(p2_grid))
     {
         cout << "**********player 1 turn**********" << endl;
         attack(p2_grid, p1_atk_grid);
+
+        system("cls");
+
+        cout << "**********player 2 turn**********" << endl;
+        attack(p1_grid, p2_atk_grid);
+        system("cls");
     }
+
     cout << "Game is over!";
     clear_ships(p1_ships, num_ships);
     clear_ships(p2_ships, num_ships);
+
     return 0;
 }
