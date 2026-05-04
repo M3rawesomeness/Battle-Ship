@@ -29,6 +29,7 @@ using namespace std;
 
 #define SCAN_WIDTH 3
 #define MINI_WIDTH 3
+#define LINE_LEN 3
 
 typedef struct battleship
 {
@@ -77,7 +78,7 @@ void ask_coords_dir(int *x,  int *y, char *dir)
     cin >> *y;
     cout << "Enter Y coord: ";
     cin >> *x;
-    cout << "Enter Dir: ";
+    cout << "Enter Dir (u/d/l/r): ";
     cin >> *dir;
     *x -= offset;
     *y -= offset;
@@ -310,7 +311,36 @@ typedef struct Tuple_Node
     int y;
 } Tuple;
 
-void line_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM]);
+void line_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
+{
+    int x, y = -1;
+    char dir = ' ';
+
+    ask_coords_dir(&x, &y, &dir);
+    check_dir(grid, &x, &y, &dir, LINE_LEN);
+
+    for (int i = 0; i < LINE_LEN; i++)
+    {
+        switch (dir)
+        {
+        case UP:
+            atk[x + i][y] = HIT;
+            break;
+        case DOWN:
+            atk[x - i][y] = HIT;
+            break;
+        case LEFT:
+            atk[x][y - i] = HIT;
+            break;
+        case RIGHT:
+            atk[x][y + i] = HIT;
+            break;
+        default:
+            cout << "Error something wrong with direction in switch case" << endl;
+            break;
+        }
+    }
+}
 
 
 void mini_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
