@@ -2,7 +2,6 @@
 #include <cstdlib>
 
 using namespace std;
-
 #define EMP (-1)
 #define HIT 0
 #define OCC 1 // Occupied
@@ -16,6 +15,17 @@ using namespace std;
 #define CLEAR_SCREEN "cls"
 #define HIT_SYMBOL "x"
 #define SHIP_SYMBOL "o"
+#define LINE_ATTACK 1
+#define SCAN_ATTACK 2
+#define MINI_ATTACK 3
+#define REG_ATTACK 4
+
+// Available attacks
+#define AV_LINE 3
+#define AV_SCAN 3
+#define AV_MINI 3
+
+#define SCAN_WIDTH 3
 
 typedef struct battleship
 {
@@ -27,13 +37,40 @@ typedef struct battleship
 
 battleship *create_ship(const int len)
 {
-    battleship *p = new battleship;
+    battleship *p = NULL;
+    p = new battleship;
 
     p->x = -1;
     p->y = -1;
     p->dir = ' ';
     p->len = len;
+
     return p;
+}
+
+void ask_coords(int *x, int *y)
+/*
+ * Ask only for coordinate with no direction
+ */
+{
+    cout << "Enter X Coord: ";
+    cin >> *x;
+    cout << "Enter Y Coord: ";
+    cin >> *y;
+}
+
+void ask_coord_dir(int *x,  int *y, char *dir)
+/*
+ * Ask for the coordinates with direction
+ */
+{
+    cout << "Invalid Coord, please try again" << endl;
+    cout << "Enters X coord: ";
+    cin >> *y;
+    cout << "Enter Y coord: ";
+    cin >> *x;
+    cout << "Enter Dir: ";
+    cin >> *dir;
 }
 
 void print_line(const int len)
@@ -103,33 +140,27 @@ bool valid_dir(const char dir, const int len, const int x, const int y)
     return true;
 }
 
-void check_coord(int grid[GRID_DIM][GRID_DIM], int *x, int *y)
+bool check_coord_bounds(int x, int y)
+{
+    constexpr int upper_bound = 12;
+    constexpr int lower_bound = 0;
+
+    return (x > upper_bound || x < lower_bound ||  y > upper_bound || y < lower_bound);
+}
+
+void validate_update_coords(int grid[GRID_DIM][GRID_DIM], int *x, int *y)
 {
     constexpr int upper_bound = 11;
     constexpr int lower_bound = 0;
 
-    while (*x > upper_bound || *x < lower_bound ||  *y > upper_bound || *y < lower_bound || grid[*x][*y] == OCC)
+    while (check_coord_bounds(*x, *y) || grid[*x][*y] == OCC)
     {
-        cout << "Made in here " << *x << " " << *y << endl;
         cout << "Invalid coordinate pressed" << endl;
-        cout << "Enter X coord";
-        cin >> *y;
-        cout << "Enter Y coord";
-        cin >> *x;
+        ask_coords(x, y);
     }
 }
 
-void reask_coord(int *x,  int *y, char *dir)
-{
-    cout << "Invalid Coord, please try again" << endl;
-    cout << "Enters X coord: ";
-    cin >> *y;
-    cout << "Enter Y coord: ";
-    cin >> *x;
-    cout << "Enter Dir: ";
-    cin >> *dir;
-}
-
+// TODO: Refactor this
 void check_dir(int grid[12][12], int *x, int *y, char *dir, const int len)
 {
     check_coord(grid, x, y);
@@ -272,12 +303,42 @@ bool game_over(int grid[GRID_DIM][GRID_DIM])
     return true;
 }
 
-void attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
+void attack_menu(const int line, const int scan, const int mini)
 {
-    int x = -1;
-    int y = -1;
-    constexpr int offset = 1;
     cout << "Entering attack mode..." << endl;
+    cout << "You currently have, " << endl;
+    cout <<  line << " Line Attacks" << endl;
+    cout << scan << " Scans" << endl;
+    cout << mini << " Mini-bombs" << endl;
+    cout << "Remaining" << endl;
+    cout << "Please enter which attack you want: " << endl;
+    cout << "1. Line Attack" << endl;
+    cout << "2. Scan Attack" << endl;
+    cout << "3. Mini-bomb Attack" << endl;
+    cout << "4. Regular Attack" << endl;
+    cout << "Enter: " << endl;
+}
+
+void line_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM]);
+
+void mini_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM]);
+
+void scan_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
+{
+    int x, y = -1;
+    for (int i = 0; i < SCAN_WIDTH; i++)
+    {
+        for (int j = 0; j < SCAN_WIDTH; j++)
+        {
+        }
+    }
+}
+
+void regular_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
+{
+    int x, y = -1;
+    constexpr int offset = 1;
+
     cout << "Enter X Coord: ";
     cin >> y;
     cout << "Enter Y Coord: ";
@@ -314,6 +375,58 @@ void attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
     }
 }
 
+bool valid_attack(const int attack, const int line_remaining, const int scan_remaining, const int mini_remaining)
+{
+    return (attack == LINE_ATTACK && line_remaining > 0) || (attack == SCAN_ATTACK && scan_remaining > 0) ||
+        (attack == MINI_ATTACK && mini_remaining > 0);
+}
+
+struct attacks_remaining
+{
+    int line_remaining;
+    int scan_remaining;
+    int mini_remaining;
+};
+
+void attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM], struct attacks_remaining *attacks_remaining)
+{
+    int attack = -1;
+
+    attack_menu(attacks_remaining->line_remaining, attacks_remaining->scan_remaining,
+                attacks_remaining->mini_remaining);
+    cin >> attack;
+
+    while (!valid_attack(attack, attacks_remaining->line_remaining, attacks_remaining->scan_remaining,
+        attacks_remaining->mini_remaining))
+    {
+        cout << "Incorrect attack" << endl;
+        attack_menu(attacks_remaining->line_remaining, attacks_remaining->scan_remaining, attacks_remaining->mini_remaining);
+        cin >> attack;
+    }
+
+    switch (attack)
+    {
+    case LINE_ATTACK:
+        attacks_remaining->line_remaining -= 1;
+        line_attack(grid, atk);
+        break;
+    case SCAN_ATTACK:
+        attacks_remaining->scan_remaining -= 1;
+        scan_attack(grid, atk);
+        break;
+    case MINI_ATTACK:
+        attacks_remaining->mini_remaining -= 1;
+        mini_attack(grid, atk);
+        break;
+    case REG_ATTACK:
+        regular_attack(grid, atk);
+        break;
+    default:
+        cout << "ERROR CHOOSING ATTACK, no valid option found" << endl;
+        break;
+    }
+}
+
 void stall()
 {
     char temp;
@@ -327,6 +440,9 @@ int main()
     int p2_grid[GRID_DIM][GRID_DIM];
     int p1_atk_grid[GRID_DIM][GRID_DIM];
     int p2_atk_grid[GRID_DIM][GRID_DIM];
+
+    struct attacks_remaining p1_attacks_remaining{ AV_LINE, AV_SCAN, AV_LINE };
+    struct attacks_remaining p2_attacks_remaining{ AV_LINE, AV_SCAN, AV_MINI };
 
     set_grid(p1_grid);
     set_grid(p2_grid);
@@ -366,7 +482,6 @@ int main()
         gen_ships(p1_ships, NUM_SHIPS, sizes);
         gen_ships(p2_ships, NUM_SHIPS, sizes);
     }
-    char temp;
     cout << "**********player 1 turn**********" << endl;
     place_ships(p1_grid, p1_ships, NUM_SHIPS); // gets the x and y
     print_screen(p1_grid, NUM_SHIPS);           // prints the grid
@@ -384,12 +499,11 @@ int main()
     while (!game_over(p1_grid) && !game_over(p2_grid))
     {
         cout << "**********player 1 turn**********" << endl;
-        attack(p2_grid, p1_atk_grid);
-
+        attack(p2_grid, p1_atk_grid, &p1_attacks_remaining);
         system(CLEAR_SCREEN);
 
         cout << "**********player 2 turn**********" << endl;
-        attack(p1_grid, p2_atk_grid);
+        attack(p1_grid, p2_atk_grid, &p2_attacks_remaining);
         system(CLEAR_SCREEN);
     }
 
