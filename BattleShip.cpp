@@ -62,6 +62,7 @@ void ask_coords(int *x, int *y)
     cin >> *x;
     cout << "Enter Y Coord: ";
     cin >> *y;
+
     *x -= offset;
     *y -= offset;
 }
@@ -80,6 +81,7 @@ void ask_coords_dir(int *x,  int *y, char *dir)
     cin >> *x;
     cout << "Enter Dir (u/d/l/r): ";
     cin >> *dir;
+
     *x -= offset;
     *y -= offset;
 }
@@ -92,17 +94,18 @@ void print_line(const int len)
     cout << "-" << endl;
 }
 
-void print_screen(int grid[GRID_DIM][GRID_DIM], int num_ships)
+void print_screen(int grid[GRID_DIM][GRID_DIM])
 {
-    // Prints numbers
-    cout << "   ";
     constexpr int offset = 1;
+
+    cout << "   ";
     for (int i = 1; i < GRID_DIM + offset; i++)
     {
         cout << " " << i << " ";
         if (i < 10)
             cout << " ";
     }
+
     cout << endl;
     print_line(GRID_DIM);
 
@@ -250,7 +253,7 @@ void place_ships(int grid[GRID_DIM][GRID_DIM], battleship *ships[], const int nu
                 break;
             }
         }
-        print_screen(grid, num_ships);
+        print_screen(grid);
     }
 }
 
@@ -543,14 +546,14 @@ int main()
     }
     cout << "**********player 1 turn**********" << endl;
     place_ships(p1_grid, p1_ships, NUM_SHIPS); // gets the x and y
-    print_screen(p1_grid, NUM_SHIPS);           // prints the grid
+    print_screen(p1_grid);           // prints the grid
 
     stall();
     system(CLEAR_SCREEN);
 
     cout << "**********player 2 turn**********" << endl;
     place_ships(p2_grid, p2_ships, NUM_SHIPS); // gets the x and y
-    print_screen(p2_grid, NUM_SHIPS);          // prints the grid
+    print_screen(p2_grid);          // prints the grid
 
     stall();
     system(CLEAR_SCREEN);
@@ -567,6 +570,11 @@ int main()
     }
 
     cout << "Game is over!";
+    if (game_over(p1_grid))
+        cout << "player 1 won the game" << endl;
+    else
+        cout << "player 2 won the game" << endl;
+
     clear_ships(p1_ships, NUM_SHIPS);
     clear_ships(p2_ships, NUM_SHIPS);
 
