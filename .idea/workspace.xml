@@ -17,9 +17,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ea360e58-f802-4b3a-9f70-6d85feba8b4c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/BattleShip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BattleShip.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="ea360e58-f802-4b3a-9f70-6d85feba8b4c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -39,9 +37,9 @@
   &quot;fromUser&quot;: false
 }</component>
   <component name="ProjectId" id="3DBLB3l3A4KfGFiwQnUPOHMMpNu" />
-  <component name="ProjectStatusUIService"><![CDATA[{
-  "uiKindId": "Widget"
-}]]></component>
+  <component name="ProjectStatusUIService">{
+  &quot;uiKindId&quot;: &quot;Widget&quot;
+}</component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -61,7 +59,7 @@
     "cf.advertisement.text.overridden": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "AttackOptions",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/davou/CLionProjects/Battle-Ship",
     "node.js.detected.package.eslint": "true",
