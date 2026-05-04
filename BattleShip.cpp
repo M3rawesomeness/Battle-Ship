@@ -28,6 +28,7 @@ using namespace std;
 #define AV_MINI 3
 
 #define SCAN_WIDTH 3
+#define MINI_WIDTH 3
 
 typedef struct battleship
 {
@@ -303,20 +304,50 @@ void attack_menu(const int line, const int scan, const int mini)
     cout << "Enter: " << endl;
 }
 
-void line_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM]);
-
-void mini_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM]);
-
 typedef struct Tuple_Node
 {
-   int x;
-   int y;
+    int x;
+    int y;
 } Tuple;
 
+void line_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM]);
+
+
+void mini_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
+{
+    int x, y = -1;
+    Tuple coords[MINI_WIDTH * MINI_WIDTH];
+    int index = 0;
+
+    ask_coords(&x, &y);
+    validate_update_coords(atk, &x, &y);
+
+    for (int i = 0; i < MINI_WIDTH; i++)
+    {
+        for (int j = 0; j < MINI_WIDTH; j++)
+        {
+            if (check_coord_bounds(x, y) && atk[x][y] == EMP)
+            {
+                const Tuple temp { x, y };
+                coords[index] = temp;
+                index++;
+            }
+        }
+    }
+    for (int i = 0; i < index; i++)
+    {
+        atk[coords[i].x][coords[i].y] = HIT;
+    }
+    if (index > 0)
+    {
+        cout << "Attack hit!" << endl;
+    }
+}
+
+// TODO: This function needs testing
 void scan_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
 {
     int x, y = -1;
-    constexpr int offset = 1;
     Tuple coords[SCAN_WIDTH * SCAN_WIDTH];
     int index = 0;
 
@@ -335,8 +366,10 @@ void scan_attack(int grid[GRID_DIM][GRID_DIM], int atk[GRID_DIM][GRID_DIM])
             }
         }
     }
-    for (int i = 0; i < SCAN_WIDTH * SCAN_WIDTH; i++) // NOLINT(*-loop-convert)
+    for (int i = 0; i < index; i++) // NOLINT(*-loop-convert)
     {
+        cout << "Scanned Area, found ships in:" << endl;
+        cout << "(" << coords[i].x << ", " << coords[i].y << ")" << endl;
         atk[coords[i].x][coords[i].y] = SCAN;
     }
 }
